@@ -86,8 +86,8 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        480,
-        672
+        400,
+        816
       ],
       "id": "efb340f5-037e-40ff-8365-3fb6ade046fb",
       "name": "Send a text message",
@@ -189,8 +189,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        48,
-        688
+        -48,
+        832
       ],
       "id": "f2076e7d-f47c-4d1a-896c-38167449f879",
       "name": "If1"
@@ -202,8 +202,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        288,
-        672
+        176,
+        816
       ],
       "id": "05cbe9ce-2fe7-4e1e-8d8f-7d4a23b25cda",
       "name": "Code in JavaScript3"
@@ -479,6 +479,163 @@
       ],
       "id": "2309ad68-0f8c-4b6c-b042-2e2db7d0af96",
       "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "content": "Schedule trigger responsible for starting the workflow every \"seconds\".\nA near real-time operation\n\n",
+        "height": 96
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1504,
+        352
+      ],
+      "typeVersion": 1,
+      "id": "482f720a-6489-42f8-b2b9-2d9fc9e6ce8e",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "This node is responsible for getting the rows of the sheet file ( columns are dummy data of the factory ( sensors, acutators etc )\n\n",
+        "height": 112
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1264,
+        656
+      ],
+      "typeVersion": 1,
+      "id": "ed83dcc0-6d2a-42b2-a317-3ff14f705d64",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "This code bloc is responsible for formatting the input ( data from the sheet ) to send it to the AI agent\n\n",
+        "height": 96
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1056,
+        336
+      ],
+      "typeVersion": 1,
+      "id": "c90f0f4f-554d-41b6-9bc2-91b5b4d5bdb7",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "The if bloc filters the rows\nOnly the new rows gets diagnosed.\n",
+        "height": 80
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -848,
+        656
+      ],
+      "typeVersion": 1,
+      "id": "ac0860db-e809-42d7-92d4-380f3d082106",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "The AI agent is responsible for detecting the status ( anaomly or normal ) and generating an action plan as well as the diagnosis using the OpenAi Chat Model, the provided data and the Context added in the code bloc.\n",
+        "height": 176
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -496,
+        256
+      ],
+      "typeVersion": 1,
+      "id": "ece33732-979f-4b19-865b-da9a65977a58",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "This code bloc is responsible for parsing the output of the AI Agent in a specific and normalized format to use ultimately.",
+        "height": 112
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -208,
+        336
+      ],
+      "typeVersion": 1,
+      "id": "c8346004-650a-474d-b4da-04b56a09b203",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "This code bloc is responsible for taking the necessary data to identify the columns that should be changed.",
+        "height": 96
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        64,
+        336
+      ],
+      "typeVersion": 1,
+      "id": "df6de6fc-3888-496b-9a09-90b3c7e259ac",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "This bloc is responsible for updating the row in the sheet specifically the 'statut' column.",
+        "height": 80
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        256,
+        624
+      ],
+      "typeVersion": 1,
+      "id": "0501fcd3-4d47-40ab-ba7c-b49ccc06b5db",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "content": "The if bloc filters the output of the code bloc.\nOnly the rows with anomalies will pass.",
+        "height": 96,
+        "width": 192
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -96,
+        960
+      ],
+      "typeVersion": 1,
+      "id": "dee136ae-959f-4866-84ec-c338b00338f1",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "content": "The code bloc is responsible for the formatting of the sent message.",
+        "height": 96,
+        "width": 176
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        144,
+        960
+      ],
+      "typeVersion": 1,
+      "id": "8d2ec4b4-6fd2-463e-a8cc-c5d2c42b636d",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "content": "The telegram bloc is responsible for sending the alert to the telegram channel using a bot.",
+        "height": 96,
+        "width": 208
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        352,
+        976
+      ],
+      "typeVersion": 1,
+      "id": "4b9ea215-c2de-4fa7-9d53-c4d942b2471d",
+      "name": "Sticky Note10"
     }
   ],
   "pinData": {},
@@ -609,7 +766,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "d16d2d9f-79cd-4f09-a73d-6ab3ce3a0fbe",
+  "versionId": "f63f6df7-0230-47f8-865c-468ffab93f75",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "5e2b7bc8402a5368d9c6c9aa46d2b91547d55129e446ac11b7263e3f949f3ff7"
