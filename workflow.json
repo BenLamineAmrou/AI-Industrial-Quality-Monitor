@@ -1,0 +1,619 @@
+{
+  "name": "Management",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tu es un Ingénieur Expert en Industrie 4.0. Ton analyse est strictement dictée par les seuils de performance suivants : ANOMALIE si OEE < 75% ou Taux_Defaut > 5%. Sinon, NORMALE.\n\nLOGIQUE DE DÉCISION EXCLUSIVE :\n\nInterdiction de classer en ANOMALIE si les seuils ci-dessus ne sont pas atteints, peu importe le Temps_Arret.\n\nFORMAT DE RÉPONSE JSON STRICT :\nTu dois impérativement générer un objet JSON contenant exactement ces clés :\n\nSTATUT : \"ANOMALIE\" ou \"NORMALE\"\n\nDIAGNOSTIC : Analyse technique concise (5 Why si anomalie, stabilité si normale).\n\nACTION : Plan PDCA (confinement/standardisation) ou surveillance de routine.\nOpID: Reprendre la valeur d'entrée. \n\nMachine_ID : Reprendre la valeur d'entrée.\n\nOEE_Calcule : Reprendre la valeur d'entrée.\n\nTaux_Defaut : Reprendre la valeur d'entrée.\n\nDate : Reprendre la valeur d'entrée.\n\nFORMAT DE RÉPONSE TEXTUEL (Pour Telegram) :\nSTATUT : [Valeur]\nDIAGNOSTIC : [Texte]\nACTION : [Texte]\n\nCONTRAINTES : Pas d'introduction. Maximum 800 caractères.\n{{ $json.Context_IA }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -480,
+        464
+      ],
+      "id": "3d4723dc-b37d-4a43-a5bb-f897897b26cd",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -480,
+        640
+      ],
+      "id": "79d68cbf-3a39-42dd-a6ec-03b6b43a3cb9",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "kIQOwqOKrXeAim7r",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1znv_bxQNgsZY42T-Bv5jiWXoywqv15Sfc0cLivqPg5s",
+          "mode": "list",
+          "cachedResultName": "010101",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1znv_bxQNgsZY42T-Bv5jiWXoywqv15Sfc0cLivqPg5s/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 959121112,
+          "mode": "list",
+          "cachedResultName": "Données Production",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1znv_bxQNgsZY42T-Bv5jiWXoywqv15Sfc0cLivqPg5s/edit#gid=959121112"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1216,
+        480
+      ],
+      "id": "4b265997-f93c-4415-a891-d783ec1b948a",
+      "name": "Get row(s) in sheet",
+      "alwaysOutputData": false,
+      "executeOnce": false,
+      "retryOnFail": false,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "BYmxdqeqnPTSTieA",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "-1003716353989",
+        "text": "={{ $json.formatted_message }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        480,
+        672
+      ],
+      "id": "efb340f5-037e-40ff-8365-3fb6ade046fb",
+      "name": "Send a text message",
+      "webhookId": "29a25f20-1acb-4caa-8730-f48885ee20e6",
+      "credentials": {
+        "telegramApi": {
+          "id": "XDHrSCYZTKAA7iHu",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of items) {\n  const piecesProduites = item.json.Pieces_Produites;\n  const piecesDefectueuses = item.json.Pieces_Defectueuses;\n\n  // Calcul du taux de défaut\n  item.json.Taux_Defaut = ((piecesDefectueuses / piecesProduites) * 100).toFixed(2);\n\n  // Préparation du message pour l'IA\n  item.json.Context_IA = `Alerte sur la machine ${item.json.Machine_ID}. OpID: ${item.json[\"OpID\"]},  OEE: ${item.json[\"OEE_Calcule \"]}%, Taux de défaut: ${item.json.Taux_Defaut}%, Temps d'arrêt: ${item.json[\"Temps_Arret \"]} min, Date :${item.json[\"Date\"]} `;\n}\nreturn items;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -992,
+        480
+      ],
+      "id": "a1e7c6d6-11bb-4515-8485-f373cff27c3e",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c53b01cf-49bc-4283-a6bd-7296e7d85e28",
+              "leftValue": "={{ $json.Statut}}",
+              "rightValue": 5,
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -768,
+        480
+      ],
+      "id": "a87bf227-7316-4953-9175-74ce3841bede",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n    const aiOutput = item.json.output || \"\";\n    let parsedData = {};\n\n    try {\n        // 1. Tenter d'extraire le bloc JSON entre les premières accolades { }\n        const jsonMatch = aiOutput.match(/\\{[\\s\\S]*?\\}/);\n        \n        if (jsonMatch) {\n            parsedData = JSON.parse(jsonMatch[0]);\n        } else {\n            // 2. Fallback : Si le JSON est mal formé, on utilise les Regex (sécurité)\n            const statusMatch = aiOutput.match(/STATUT\\s*:\\s*(ANOMALIE|NORMALE)/i);\n            const diagMatch = aiOutput.match(/DIAGNOSTIC\\s*:\\s*([^]*?)(?=\\nACTION|$)/i);\n            const actionMatch = aiOutput.match(/ACTION\\s*:\\s*([^]*?)$/i);\n\n            parsedData = {\n                \"STATUT\": statusMatch ? statusMatch[1].toUpperCase() : \"INCONNU\",\n                \"DIAGNOSTIC\": diagMatch ? diagMatch[1].trim() : \"Non spécifié\",\n                \"ACTION\": actionMatch ? actionMatch[1].trim() : \"Non spécifié\"\n            };\n        }\n    } catch (e) {\n        console.error(\"Erreur de parsing JSON sur un item\");\n    }\n\n    // 3. Définition des indicateurs visuels pour le Dashboard\n    const isAnomaly = parsedData.STATUT === \"ANOMALIE\";\n    const labelStatus = isAnomaly ? \"🔴 ANOMALIE\" : \"🟢 NORMAL\";\n\n    // 4. Retourne l'item enrichi avec toutes les clés extraites incluant la Date\n    return {\n        json: {\n            ...item.json, // On garde les données d'origine (row_number, etc.)\n            STATUT: parsedData.STATUT,\n            DIAGNOSTIC: parsedData.DIAGNOSTIC,\n            ACTION: parsedData.ACTION,\n            status_final: labelStatus,\n            is_anomaly: isAnomaly,\n            // Mapping des métadonnées et KPI (priorité au JSON de l'IA, sinon données d'origine)\n            OpID: parsedData.OpID || item.json.OpID,\n            Date: parsedData.Date || item.json.Date,\n            Machine_ID: parsedData.Machine_ID || item.json.Machine_ID,\n            OEE_Calcule: parsedData.OEE_Calcule || item.json.OEE_Calcule,\n            Taux_Defaut: parsedData.Taux_Defaut || item.json.Taux_Defaut\n        }\n    };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -112,
+        464
+      ],
+      "id": "f65b3499-d822-49ab-83be-9e487d57f446",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c53b01cf-49bc-4283-a6bd-7296e7d85e28",
+              "leftValue": "={{ $json.is_anomaly}}",
+              "rightValue": 5,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        48,
+        688
+      ],
+      "id": "f2076e7d-f47c-4d1a-896c-38167449f879",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n    const output = item.json.output || \"\";\n    \n    // Extraction du DIAGNOSTIC : cherche tout ce qui se trouve entre \"DIAGNOSTIC :\" et \"ACTION :\"\n    const diagMatch = output.match(/DIAGNOSTIC\\s*:\\s*([^]*?)(?=\\nACTION|$)/i);\n    // Extraction de l'ACTION : cherche tout ce qui se trouve après \"ACTION :\"\n    const actionMatch = output.match(/ACTION\\s*:\\s*([^]*?)$/i);\n\n    // Nettoyage des caractères inutiles\n    const diagnostic = diagMatch ? diagMatch[1].replace(/[\\[\\]]/g, '').trim() : \"Non spécifié\";\n    const action = actionMatch ? actionMatch[1].replace(/[\\[\\]]/g, '').trim() : \"Aucune action définie\";\n\n    // Récupération de la date (s'assure de prendre la valeur du Sheets ou de l'IA)\n    const dateEvent = item.json.Date || \"Date inconnue\";\n\n    // Construction du message Telegram formaté avec la DATE\n    const telegramMessage = `🚨 *ALERTE ANOMALIE DÉTECTÉE* 🚨\\n\\n` +\n                            `📅 *Date :* ${dateEvent}\\n` +\n                            `📍 *Machine :* ${item.json.Machine_ID || \"N/A\"}\\n` +\n                            `📊 *KPI Critique :* OEE ${item.json.OEE_Calcule || item.json[\"OEE_Calcule \"]}%\\n\\n` +\n                            `🔍 *DIAGNOSTIC TECHNIQUE :*\\n${diagnostic}\\n\\n` +\n                            `✅ *PLAN D'ACTION (PDCA) :*\\n${action}\\n\\n` +\n                            `🕒 _Statut mis à jour dans le Dashboard_`;\n\n    return {\n        json: {\n            ...item.json,\n            formatted_message: telegramMessage\n        }\n    };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        288,
+        672
+      ],
+      "id": "05cbe9ce-2fe7-4e1e-8d8f-7d4a23b25cda",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1znv_bxQNgsZY42T-Bv5jiWXoywqv15Sfc0cLivqPg5s",
+          "mode": "list",
+          "cachedResultName": "010101",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1znv_bxQNgsZY42T-Bv5jiWXoywqv15Sfc0cLivqPg5s/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 959121112,
+          "mode": "list",
+          "cachedResultName": "Données Production",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1znv_bxQNgsZY42T-Bv5jiWXoywqv15Sfc0cLivqPg5s/edit#gid=959121112"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "OpID"
+          ],
+          "schema": [
+            {
+              "id": "OpID",
+              "displayName": "OpID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Machine_ID",
+              "displayName": "Machine_ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Temps_Fonctionnement",
+              "displayName": "Temps_Fonctionnement",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Temps_Arret ",
+              "displayName": "Temps_Arret ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Pieces_Produites",
+              "displayName": "Pieces_Produites",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Pieces_Defectueuses",
+              "displayName": "Pieces_Defectueuses",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Taux_Defaut ",
+              "displayName": "Taux_Defaut ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "OEE_Calcule ",
+              "displayName": "OEE_Calcule ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Statut",
+              "displayName": "Statut",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "output",
+              "displayName": "output",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "STATUT",
+              "displayName": "STATUT",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "DIAGNOSTIC",
+              "displayName": "DIAGNOSTIC",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ACTION",
+              "displayName": "ACTION",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status_final",
+              "displayName": "status_final",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "is_anomaly",
+              "displayName": "is_anomaly",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "OEE_Calcule",
+              "displayName": "OEE_Calcule",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Taux_Defaut",
+              "displayName": "Taux_Defaut",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "locationDefine": {
+            "values": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        320,
+        464
+      ],
+      "id": "cf5726b9-8e78-4c43-be66-66f236d7c177",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "BYmxdqeqnPTSTieA",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n    // Extraction et conversion de l'OpID en Entier (Integer)\n    const rawOpID = item.json.OpID;\n    const opIdAsInt = parseInt(rawOpID, 10);\n\n    // Extraction du statut_final\n    const finalStatut = item.json.status_final || \"INCONNU\";\n\n    // Retourne uniquement les deux attributs demandés\n    return {\n        json: {\n            OpID: opIdAsInt,\n            Statut: finalStatut\n        }\n    };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        128,
+        464
+      ],
+      "id": "395d5b52-fb98-4384-89f0-17ccee792e92",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "seconds"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -1424,
+        480
+      ],
+      "id": "2309ad68-0f8c-4b6c-b042-2e2db7d0af96",
+      "name": "Schedule Trigger"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        []
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "d16d2d9f-79cd-4f09-a73d-6ab3ce3a0fbe",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5e2b7bc8402a5368d9c6c9aa46d2b91547d55129e446ac11b7263e3f949f3ff7"
+  },
+  "id": "orrXyJUYKzhEtmSD",
+  "tags": []
+}
